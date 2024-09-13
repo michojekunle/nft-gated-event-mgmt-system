@@ -13,12 +13,15 @@ module.exports = {
       accounts: [process.env.WALLET_KEY, process.env.RANDOM_WALLET_KEY ,process.env.OTHER_ACCOUNT_WALLET_KEY],
       gasPrice: 1000000000,
     },
+    sepolia: {
+      url: `https://sepolia.infura.io/v3/${process.env.INFURA_ID}`,
+      accounts: [process.env.WALLET_KEY],
+    }
+
   },
   etherscan: {
     // Use "123" as a placeholder, because Blockscout doesn't need a real API key, and Hardhat will complain if this property isn't set.
-    apiKey: {
-      "lisk-sepolia": "123",
-    },
+    apiKey: process.env.ETHERSCAN_API_KEY,
     customChains: [
       {
         network: "lisk-sepolia",
