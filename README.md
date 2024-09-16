@@ -154,7 +154,7 @@ npx hardhat test
 
 ## Deployment
 
-You can deploy the contracts to the lisk-spolia testnet.
+You can deploy the contracts to the lisk-sepolia testnet.
 
 ### Prerequisites
 
