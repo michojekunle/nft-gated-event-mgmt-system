@@ -49,7 +49,9 @@ npm install
 
 This will install the necessary dependencies for running Hardhat and other too
 
-## Contract Usage
+## Contract Usage 
+
+For NFTGatedEventManager contract check out the contracts directory for other contracts (Nft and helper contracts)
 
 ### 1\. Creating an Event (Owner Only)
 
@@ -151,14 +153,129 @@ function updateEventStatus(uint256 _eventId, bool _isActive)
 3. **Capacity Limits**: Prevents overbooking by setting a maximum capacity for each event.
 4. **Registration Protection**: Each user can only register once per event to prevent double registrations.
 
+## Testing
+
+Unit tests ensure that the contracts behave as expected. Tests for both Ether and ERC20 staking contracts are located in the test directory.
+
+### Running Tests
+
+Run the following command to execute the tests:
+
+```
+npx hardhat test
+```
+
+## Deployment
+
+You can deploy the contracts to the lisk-spolia testnet.
+
+### Prerequisites
+
+- An Ethereum development environment like Hardhat.
+- A wallet with sufficient funds for deployment.
+
+### Deployment Steps
+
+1. **Set up your hardhat config and .env:**
+
+   - Make sure to have the necessary dependencies installed
+
+     Note: This hardhat config has setup lisk-sepolia network only, you can add other networks if you want to deploy on them
+
+     ```
+     require("@nomicfoundation/hardhat-toolbox");
+     const dotenv = require("dotenv");
+     dotenv.config();
+     
+     /** @type import('hardhat/config').HardhatUserConfig */
+     module.exports = {
+       solidity: "0.8.24",
+       networks: {
+         // for testnet
+         "lisk-sepolia": {
+           url: "https://rpc.sepolia-api.lisk.com",
+           accounts: [process.env.WALLET_KEY],
+           gasPrice: 1000000000,
+         },
+       },
+       etherscan: {
+         // Use "123" as a placeholder, because Blockscout doesn't need a real API key, and Hardhat will complain if this property isn't set.
+         apiKey: {
+           "lisk-sepolia": "123",
+         },
+         customChains: [
+           {
+             network: "lisk-sepolia",
+             chainId: 4202,
+             urls: {
+               apiURL: "https://sepolia-blockscout.lisk.com/api",
+               browserURL: "https://sepolia-blockscout.lisk.com",
+             },
+           },
+         ],
+       },
+       sourcify: {
+         enabled: false,
+       },
+     };
+     ```
+
+- set up your `.env`, in your `.env`
+
+  ```
+  WALLET_KEY="your-private-key"
+  ```
+
+1. **Update the deployment module**
+
+   ```
+   import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
+   
+   const NFTGatedEventManagerModule = buildModule("NFTGatedEventManagerModule", (m) => {
+     
+     const NFTGatedEventManager = m.contract("NFTGatedEventManager");
+   
+     return { NFTGatedEventManager };
+   });
+   
+   export default NFTGatedEventManagerModule;
+   
+   ```
+
+2. **Deploy the Contract:**
+
+   Deploy the contract using Hardhat:
+
+   ```
+   npx hardhat ignition deploy ignition/modules/<name-of-your-module> --network lisk-sepolia
+   ```
+
+3. **Verify the Deployment:**
+
+   Once deployed, note the contract address. You can verify the contract on Etherscan or blockscout if deployed on lisk-sepolia using:
+
+   ```
+   npx hardhat verify --network lisk-sepolia <your-contract-address> <...args>
+   ```
+
+- *Note: &lt;...args&gt; are the arguments passed to the constructor of your contract when it is being deployed*
+
+## Interacting with the Deployed Contracts
+
+You can use scripts to interact with the deployed contracts after they are live. The interaction scripts for this repository can be found in the scripts directory To run scripts that interact with the contracts:
+
+```
+npx hardhat run scripts/interaction.ts --network lisk-sepolia
+```
+
 ## License
 
 This project is licensed under the MIT License. Feel free to use and modify the contract.
 
----
+## Contributing
 
-## Contributions
+Contributions are welcome! Fork the repository, make changes, and submit a pull request.
 
-Feel free to fork the repository and create a pull request. Contributions and suggestions for improvements are always welcome!
-
-# 
+```
+Thank you for reading through I really hope this helps, Happy Hacking! 🤗
+```
