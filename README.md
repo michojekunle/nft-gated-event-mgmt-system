@@ -181,7 +181,7 @@ You can deploy the contracts to the lisk-sepolia testnet.
          // for testnet
          "lisk-sepolia": {
            url: "https://rpc.sepolia-api.lisk.com",
-           accounts: [process.env.WALLET_KEY],
+           accounts: [process.env.WALLET_KEY, process.env.ANOTHER_WALLET_KEY ,process.env.OTHER_ACCOUNT_WALLET_KEY],
            gasPrice: 1000000000,
          },
        },
@@ -211,6 +211,8 @@ You can deploy the contracts to the lisk-sepolia testnet.
 
   ```
   WALLET_KEY="your-private-key"
+  ANOTHER_WALLET_KEY="your-private-key"
+  OTHER_ACCOUNT_WALLET_KEY="your-private-key"   
   ```
 
 1. **Update the deployment module**
