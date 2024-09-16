@@ -3,8 +3,9 @@ pragma solidity ^0.8.17;
 
 import {IERC721} from "./interfaces/IERC721.sol";
 import {IERC165} from "./interfaces/IERC165.sol";
+import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
 
-contract NFTGatedEventManager {
+contract NFTGatedEventManager is ReentrancyGuard {
     struct Event {
         string eventName; // Name of the event
         uint256 eventDate; // Event date (timestamp)
@@ -86,7 +87,7 @@ contract NFTGatedEventManager {
     }
 
     // Register for an event: Verifies NFT ownership
-    function registerForEvent(uint256 _eventId) external {
+    function registerForEvent(uint256 _eventId) external nonReentrant {
         Event storage currentEvent = events[_eventId];
         require(currentEvent.isActive, "Event is not active.");
         require(
