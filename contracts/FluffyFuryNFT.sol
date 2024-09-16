@@ -4,10 +4,12 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+
 import {Base64} from "./Base64.sol";
 
 contract FluffyFury is ERC721URIStorage, Ownable(msg.sender) {
     event Minted(uint256 tokenId);
+
 
     uint256 private _tokenIdCounter;
     uint256 public mintPrice = 0.0001 ether; // Specify the mint price in ether
@@ -21,19 +23,19 @@ contract FluffyFury is ERC721URIStorage, Ownable(msg.sender) {
 
     // Modifier to check if the payment sent is correct
     modifier mintPricePaid() {
-        require(msg.value == mintPrice, "Incorrect Ether amount sent");
+        require(msg.value == mintPrice, "0.0001 ether required to mint");
         _;
     }
 
     // Converts an SVG to a Base64 string
-    function svgToImageURI(string memory svg) public pure returns (string memory) {
+    function svgToImageURI(string memory svg) private pure returns (string memory) {
         string memory baseURL = "data:image/svg+xml;base64,";
         string memory svgBase64Encoded = Base64.encode(bytes(svg));
         return string(abi.encodePacked(baseURL, svgBase64Encoded));
     }
 
     // Generates a tokenURI using the Base64 string as the image
-    function formatTokenURI(string memory imageURI) public pure returns (string memory) {
+    function formatTokenURI(string memory imageURI) private pure returns (string memory) {
         return
             string(
                 abi.encodePacked(
@@ -74,7 +76,7 @@ contract FluffyFury is ERC721URIStorage, Ownable(msg.sender) {
         require(sent, "Withdrawal failed");
     }
 
-    // Allows the owner to update the SVG, after validating that the new SVG contains "ipfs://"
+    // Allows the owner to update the SVG
     function updateSVG(string memory _newSvg) external onlyOwner {
         require(bytes(_newSvg).length > 0, "SVG data cannot be empty");
         require(bytes(_newSvg).length <= 5000, "SVG data too large"); // Add size validation if needed

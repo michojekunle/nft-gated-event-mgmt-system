@@ -1,74 +1,117 @@
 import { ethers } from "hardhat";
 
 async function main() {
-    const [owner, addr1, addr2] = await ethers.getSigners();
+  const [owner, addr1, addr2] = await ethers.getSigners();
+  const nft_mint_price = ethers.parseEther("0.0001");
 
-    const multisigFactoryAddress = '0x3473b59C85919e4DcA209e2Bc9Aaf27Ab51a6Fa2';
-    const web3CXITokenAddress = "0x072D37C74404d375Fa8B069C8aF50C0950DbF351";
+  const nftGatedContractAddress = "0xDbeaeb362f2889255b81f0d3E77F92Ee220D24Dc";
+  const fluffyNFTTokenAddress = "0x8d62Cdd85BF63acD648c06b0766b33e381686DF0";
+  const caveNFTTokenAddress = "0x8613BFbd4A1c460a88E6ea15cCCD7dBEa67A882d";
 
-    const web3CXI = await ethers.getContractAt("IERC20", web3CXITokenAddress);
-    const multisigFactory = await ethers.getContractAt('IMultisigFactory', multisigFactoryAddress);
+  const FluffyFuryNFT = await ethers.getContractAt(
+    "IFluffyFury",
+    fluffyNFTTokenAddress
+  );
+  const CavePartyNFT = await ethers.getContractAt(
+    "ICaveParty",
+    caveNFTTokenAddress
+  );
+  const nftGatedEventManager = await ethers.getContractAt(
+    "INFTGatedEventManager",
+    nftGatedContractAddress
+  );
 
-    // deploy recent multiSig clone
-    const quorum = 3;
-    const validSigners = [owner, addr1, addr2];
+  // create events and log transactions
+  // event one arguments
+  const eventNameEventOne = "Health Summit Africa";
+  const eventDateEventOne = new Date().getTime() + 3600;
+  const nftRequiredEventOne = fluffyNFTTokenAddress;
+  const maxCapacityEventOne = 500;
 
-    const deployMultisigCloneTx = await multisigFactory.createMultisigClone(quorum, validSigners);
-    await deployMultisigCloneTx.wait();
+  // call transaction to create event one   
+  const createEventOneTx = await nftGatedEventManager.createEvent(
+    eventNameEventOne,
+    eventDateEventOne,
+    nftRequiredEventOne,
+    maxCapacityEventOne
+  );
+  await createEventOneTx.wait();
+  console.log("Event One creating Tx: ", createEventOneTx);
 
-    console.log("DeploymultisigCloneTx", deployMultisigCloneTx);
+  // event two arguments 
+  const eventNameEventTwo = "Web3Bridge Blockchain Conference";
+  const eventDateEventTwo = new Date().getTime() + 7200;
+  const nftRequiredEventTwo = caveNFTTokenAddress;
+  const maxCapacityEventTwo = 5000;
+  
+  // call transaction to create event one   
+  const createEventTwoTx = await nftGatedEventManager.createEvent(
+    eventNameEventTwo,
+    eventDateEventTwo,
+    nftRequiredEventTwo,
+    maxCapacityEventTwo
+  );
+  await createEventTwoTx.wait();
+  console.log("Event Two creating Tx: ", createEventTwoTx);
 
-    // get deployed multisigs
-    const multisigClones = await multisigFactory.getMultisigs();
+  // get event details 
+  const eventOne = await nftGatedEventManager.getEventDetails(0);
+  const eventTwo = await nftGatedEventManager.getEventDetails(1);
 
-    console.log("All multisig clones for this multisig factory", multisigClones);
+  // log event details to console
+  console.log("Event One: ", eventOne);
+  console.log("Event Two: ", eventTwo);
 
-    // get and interact with recent deployed multisig
-    const recentMultisigCloneAddress = multisigClones[multisigClones.length - 1];
+  // mints nfts and register attendees for events
+  // mints nft for event one
+  const mintFluffyForOwnerTx = await FluffyFuryNFT.mint({ value: nft_mint_price });
+  const mintFluffyForAddr1Tx = await FluffyFuryNFT.connect(addr1).mint({ value: nft_mint_price });
 
-    console.log("recent multisig address", recentMultisigCloneAddress)
+  //logs 
+  console.log("Mint FluffyFury NFT For Owner Tx: ", mintFluffyForOwnerTx);
+  console.log("Mint FluffyFury NFT For Addr1 Tx: ", mintFluffyForAddr1Tx);
 
-    // get multisig contract 
-    const multisig = await ethers.getContractAt('IMultisig', recentMultisigCloneAddress);
 
-    // interact with transfer function of the deployed multisig
-    // transfer erc 20token into contract
-    const transferTokensTx = await web3CXI.transfer(
-        multisig,
-        ethers.parseUnits("100", 18)
-      );
-    transferTokensTx.wait();
+  // registers users for event one
+  const registerOwnerForEventOneTx = await nftGatedEventManager.registerForEvent(0);
+  const registerAddr1ForEventOneTx = await nftGatedEventManager.connect(addr1).registerForEvent(0);
 
-    // get balace or recipient before transfer transaction
-    const recipientbalanceBefore = await web3CXI.balanceOf(addr2);
+  //logs
+  console.log("Register Owner For event one Tx: ", registerOwnerForEventOneTx);
+  console.log("Register Addr1 For event one Tx: ", registerAddr1ForEventOneTx);
 
-    // initialize and approve the transfer function
-    const transferAmount = ethers.parseUnits("10", 18);
-    const transferTx = await multisig.transfer(transferAmount, addr2, web3CXITokenAddress);
-    await transferTx.wait();
+  // mints nft for event two
+  const mintCavePartyNFTForOwnerTx = await CavePartyNFT.mintToken({ value: nft_mint_price });
+  const mintCavePartyNFTForAddr1Tx = await CavePartyNFT.connect(addr2).mintToken({ value: nft_mint_price });
 
-    console.log("Transfer Tx", transferTx);
+  // logs
+  console.log("Mint CaveParty NFT For Owner Tx: ", mintCavePartyNFTForOwnerTx);
+  console.log("Mint CaveParty NFT For Addr1 Tx: ", mintCavePartyNFTForAddr1Tx);
 
-    // approve transfer transaction with other valid signers
-    await multisig.connect(addr1).approveTx(1);
-    await multisig.connect(addr2).approveTx(1);
+  // registers users for event two
+  const registerOwnerForEventTwoTx = await nftGatedEventManager.registerForEvent(1);
+  const registerAddr1ForEventTwoTx = await nftGatedEventManager.connect(addr2).registerForEvent(1);
 
-    const recipientbalanceAfter = await web3CXI.balanceOf(addr2);
+  //logs
+  //logs
+  console.log("Register Owner For event two Tx: ", registerOwnerForEventTwoTx);
+  console.log("Register Addr1 For event two Tx: ", registerAddr1ForEventTwoTx);
 
-    console.log("Recipient Balance Before transfer transaction: ", recipientbalanceBefore, "\nRecipient Balance After transfer transaction: ", recipientbalanceAfter);    
+  const ownerBalanceBeforeWithdrawal = await ethers.provider.getBalance(owner);
+  console.log("Owner balance before withdrawal: ", ethers.formatEther(ownerBalanceBeforeWithdrawal));
 
-    // interact with the updatequorum of the deployed multisig
-    const newQuorum = 2;
-    const updateQuorumTx = await multisig.updateQuorum(newQuorum);
-    await updateQuorumTx.wait();
+  // withdraws funds from nfts' to owners account
+  const withdrawFundsFluffyFuryNFTTx = await CavePartyNFT.withdrawFunds();   
+  const withdrawFundsCavePartyNFTTx = await FluffyFuryNFT.withdrawFunds();
+  
+  //logs
+  console.log("withdraw Funds from FluffyFuryNFT Tx: ", withdrawFundsFluffyFuryNFTTx);
+  console.log("Withdraw Funds from CavePartyNFT Tx: ", withdrawFundsCavePartyNFTTx);
 
-    console.log("Update Quorum Tx", updateQuorumTx);
-
-    await multisig.connect(addr1).approveTx(2);
-    await multisig.connect(addr2).approveTx(2);
-
+  const ownerBalanceAfterWithdrawal = await ethers.provider.getBalance(owner);
+  console.log("Owner balance after withdrawal: ", ethers.formatEther(ownerBalanceAfterWithdrawal));
 }
 
-main().catch(error => {
-    console.error(error);
-})
+main().catch((error) => {
+  console.error(error);
+});

@@ -17,7 +17,6 @@ module.exports = {
       url: `https://sepolia.infura.io/v3/${process.env.INFURA_ID}`,
       accounts: [process.env.WALLET_KEY],
     }
-
   },
   etherscan: {
     // Use "123" as a placeholder, because Blockscout doesn't need a real API key, and Hardhat will complain if this property isn't set.

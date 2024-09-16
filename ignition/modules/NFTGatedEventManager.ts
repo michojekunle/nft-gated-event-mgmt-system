@@ -1,10 +1,10 @@
 import { buildModule } from "@nomicfoundation/hardhat-ignition/modules";
 
-const FluffyFuryModule = buildModule("FluffyFuryModule", (m) => {
+const NFTGatedEventManagerModule = buildModule("NFTGatedEventManagerModule", (m) => {
   
-  const FluffyFury = m.contract("NFTGatedEventManager");
+  const NFTGatedEventManager = m.contract("NFTGatedEventManager");
 
-  return { FluffyFury };
+  return { NFTGatedEventManager };
 });
 
-export default FluffyFuryModule;
+export default NFTGatedEventManagerModule;
