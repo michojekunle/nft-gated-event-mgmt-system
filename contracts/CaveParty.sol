@@ -14,7 +14,7 @@ contract CaveParty is ERC721, Ownable(msg.sender) {
     uint256 public mintPrice = 0.0001 ether;
     uint256 public maxPerWallet = 1;
     string public assetMetadata =
-        "ipfs://QmeXnyhrkEGfKzQRtusyWNFKcjyZxLcU1puRvxLkK2kTeS";
+        "https://gateway.pinata.cloud/ipfs/Qmcs26b4ph4xqNyweWciq8H6gTkhESd4yZtECVmESMWPBo";
 
     // mappings
     mapping(address => uint256) public walletMints;
@@ -26,6 +26,12 @@ contract CaveParty is ERC721, Ownable(msg.sender) {
         return assetMetadata;
     }
 
+    function tokenURI(
+        uint256 tokenId
+    ) public view virtual override returns (string memory) {
+        return assetMetadata;
+    }
+
     function safeMint(address to) internal {
         uint256 tokenId = totalMints;
         totalMints++;
@@ -34,9 +40,9 @@ contract CaveParty is ERC721, Ownable(msg.sender) {
     }
 
     function mintToken() external payable {
-        require(mintPrice == msg.value, "0.0001 ether required to mint");
+        require(mintPrice >= msg.value, "0.0001 ether required to mint");
         require(
-            walletMints[msg.sender] <= maxPerWallet,
+            walletMints[msg.sender] < maxPerWallet,
             "mints per wallet exceeded"
         );
 
@@ -53,35 +59,18 @@ contract CaveParty is ERC721, Ownable(msg.sender) {
         require(sent, "withdrawal failed");
     }
 
-    function updateMetadata(string memory _newAssetMetadata) external onlyOwner {
-        require(checkMetadata(_newAssetMetadata), "Invalid asset metadata: must include 'ipfs://'");
-
+    function updateMetadata(
+        string memory _newAssetMetadata
+    ) external onlyOwner {
         assetMetadata = _newAssetMetadata;
     }
 
-    function getAssetMetadata() external view onlyOwner returns(string memory) {
+    function getAssetMetadata()
+        external
+        view
+        onlyOwner
+        returns (string memory)
+    {
         return assetMetadata;
-    }
-
-    function checkMetadata(string memory _newAssetMetadata) private pure returns (bool) {
-        bytes memory metadataBytes = bytes(_newAssetMetadata);
-        bytes memory ipfsBytes = bytes("ipfs://");
-
-        if (metadataBytes.length < ipfsBytes.length) return false;
-
-        for (uint256 i = 0; i <= metadataBytes.length - ipfsBytes.length; i++) {
-            bool check = true;
-            for (uint256 j = 0; j < ipfsBytes.length; j++) {
-                if (metadataBytes[i + j] != ipfsBytes[j]) {
-                    check = false;
-                    break;
-                }
-            }
-            if (check) {
-                return true;
-            }
-        }
-
-        return false;
     }
 }
