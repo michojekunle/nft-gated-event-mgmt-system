@@ -9,10 +9,8 @@ This is an NFT-gated event management smart contract where only users who own sp
 - **Event Creation**: Multiple events can be created, each with its own name, date, NFT collection, and maximum capacity.
 - **NFT-Gated Access**: Only users holding a specific NFT can register for the corresponding event.
 - **Capacity Management**: Events can set a maximum number of participants, preventing overbooking.
-- **Event Tracking**: All events are tracked, and the contract can provide details on any event, inc[luding who is regis](http://registered.Security)tered.
+- **Event Tracking**: All events are tracked, and the contract can provide details on any event, including who is registered.
 - **Security Features**: Ownership validation via NFTs, capacity checks, and reentrancy protection.
-
----
 
 ## Smart Contract Architecture
 
@@ -24,24 +22,20 @@ This is an NFT-gated event management smart contract where only users who own sp
 - **Event Status Management**: The owner can activate or deactivate events.
 - **Tracking**: All events are tracked with unique IDs, and participants can check if they are registered.
 
----
-
 ## Prerequisites
 
 - **Node.js** (for running the local development environment)
 - **Hardhat** (for local Ethereum blockchain and contract deployment)
 
----
-
 ## Installation
 
-### 1\. Clone the Repository
+### 1 Clone the Repository
 
 ```
 git clone https://github.com/michojekunle/nft-gated-event-mgmt-system.git
 ```
 
-### 2\. Install Dependencies
+### 2 Install Dependencies
 
 ```
 npm install
@@ -53,17 +47,14 @@ This will install the necessary dependencies for running Hardhat and other too
 
 For NFTGatedEventManager contract check out the contracts directory for other contracts (Nft and helper contracts)
 
-### 1\. Creating an Event (Owner Only)
+### 1 Creating an Event (Owner Only)
 
 After deployment, the owner (contract deployer) can create an event by calling the `createEvent` function:
 
-```
-solidity
-```
 
-Copy code
-
-`function createEvent( string memory _eventName, uint256 _eventDate, address _nftRequired, uint256 _maxCapacity )`
+```
+function createEvent( string memory _eventName, uint256 _eventDate, address _nftRequired, uint256 _maxCapacity )
+```
 
 Parameters:
 
@@ -78,17 +69,13 @@ Example:
 eventManager.createEvent( "Blockchain Conference", 1726496465, // 3 days from now "0xYourNFTAddressHere", 100 );
 ```
 
-### 2\. Registering for an Event (For NFT Holders)
+### 2 Registering for an Event (For NFT Holders)
 
 Participants who hold the required NFT for an event can register using the `registerForEvent` function:
 
 ```
-solidity
+function registerForEvent(uint256 _eventId)
 ```
-
-Copy code
-
-`function registerForEvent(uint256 _eventId)`
 
 - `_eventId`: The unique ID of the event for which the user is registering.
 
@@ -98,7 +85,7 @@ Example:
 eventManager.registerForEvent(1); // Registers for event with ID 1
 ```
 
-### 3\. Viewing Event Details
+### 3 Viewing Event Details
 
 Use the `getEventDetails` function to get details of a specific event:
 
@@ -121,7 +108,7 @@ Example:
 (string memory eventName, uint256 eventDate, address nftRequired, uint256 maxCapacity, uint256 registeredCount, bool isActive) = eventManager.getEventDetails(1);
 ```
 
-### 4\. Check If a User Is Registered for an Event
+### 4 Check If a User Is Registered for an Event
 
 You can check if a specific address is registered for a particular event using:
 
@@ -135,7 +122,7 @@ Example:
 bool isRegistered = eventManager.isUserRegistered(1, 0xYourUserAddressHere);
 ```
 
-### 5\. Toggle Event Status (Owner Only)
+### 5 Toggle Event Status (Owner Only)
 
 The owner can activate or deactivate an event:
 
@@ -167,7 +154,7 @@ npx hardhat test
 
 ## Deployment
 
-You can deploy the contracts to the lisk-spolia testnet.
+You can deploy the contracts to the lisk-sepolia testnet.
 
 ### Prerequisites
 
@@ -194,7 +181,7 @@ You can deploy the contracts to the lisk-spolia testnet.
          // for testnet
          "lisk-sepolia": {
            url: "https://rpc.sepolia-api.lisk.com",
-           accounts: [process.env.WALLET_KEY],
+           accounts: [process.env.WALLET_KEY, process.env.ANOTHER_WALLET_KEY ,process.env.OTHER_ACCOUNT_WALLET_KEY],
            gasPrice: 1000000000,
          },
        },
@@ -224,6 +211,8 @@ You can deploy the contracts to the lisk-spolia testnet.
 
   ```
   WALLET_KEY="your-private-key"
+  ANOTHER_WALLET_KEY="your-private-key"
+  OTHER_ACCOUNT_WALLET_KEY="your-private-key"   
   ```
 
 1. **Update the deployment module**
