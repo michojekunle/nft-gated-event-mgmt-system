@@ -154,7 +154,7 @@ npx hardhat test
 
 ## Deployment
 
-You can deploy the contracts to the lisk-sepolia testnet.
+You can deploy the contracts to a testnet network.
 
 ### Prerequisites
 
@@ -167,8 +167,6 @@ You can deploy the contracts to the lisk-sepolia testnet.
 
    - Make sure to have the necessary dependencies installed
 
-     Note: This hardhat config has setup lisk-sepolia network only, you can add other networks if you want to deploy on them
-
      ```
      require("@nomicfoundation/hardhat-toolbox");
      const dotenv = require("dotenv");
@@ -176,7 +174,7 @@ You can deploy the contracts to the lisk-sepolia testnet.
      
      /** @type import('hardhat/config').HardhatUserConfig */
      module.exports = {
-       solidity: "0.8.24",
+       solidity: "0.8.28",
        networks: {
          // for testnet
          "lisk-sepolia": {
@@ -184,11 +182,16 @@ You can deploy the contracts to the lisk-sepolia testnet.
            accounts: [process.env.WALLET_KEY, process.env.ANOTHER_WALLET_KEY ,process.env.OTHER_ACCOUNT_WALLET_KEY],
            gasPrice: 1000000000,
          },
+         rootstock: {
+            url: process.env.ROOTSTOCK_TESTNET_RPC_URL!,
+            accounts: [process.env.WALLET_KEY!],
+          },
        },
        etherscan: {
          // Use "123" as a placeholder, because Blockscout doesn't need a real API key, and Hardhat will complain if this property isn't set.
          apiKey: {
            "lisk-sepolia": "123",
+           "rootstock": "123",
          },
          customChains: [
            {
@@ -199,6 +202,14 @@ You can deploy the contracts to the lisk-sepolia testnet.
                browserURL: "https://sepolia-blockscout.lisk.com",
              },
            },
+           {
+              network: "rootstock",
+              chainId: 31,
+              urls: {
+                apiURL: "https://rootstock-testnet.blockscout.com/api/",
+                browserURL: "https://rootstock-testnet.blockscout.com/",
+              },
+            },
          ],
        },
        sourcify: {
@@ -212,7 +223,8 @@ You can deploy the contracts to the lisk-sepolia testnet.
   ```
   WALLET_KEY="your-private-key"
   ANOTHER_WALLET_KEY="your-private-key"
-  OTHER_ACCOUNT_WALLET_KEY="your-private-key"   
+  OTHER_ACCOUNT_WALLET_KEY="your-private-key"
+  ROOTSTOCK_TESTNET_RPC_URL=your-alchemy-testnet-rpc-url   
   ```
 
 1. **Update the deployment module**
@@ -236,15 +248,15 @@ You can deploy the contracts to the lisk-sepolia testnet.
    Deploy the contract using Hardhat:
 
    ```
-   npx hardhat ignition deploy ignition/modules/<name-of-your-module> --network lisk-sepolia
+   npx hardhat ignition deploy ignition/modules/<name-of-your-module> --network <network>
    ```
 
 3. **Verify the Deployment:**
 
-   Once deployed, note the contract address. You can verify the contract on Etherscan or blockscout if deployed on lisk-sepolia using:
+   Once deployed, note the contract address. You can verify the contract on Etherscan or blockscout if deployed on the network deployed using:
 
    ```
-   npx hardhat verify --network lisk-sepolia <your-contract-address> <...args>
+   npx hardhat verify --network <network> <your-contract-address> <...args>
    ```
 
 - *Note: &lt;...args&gt; are the arguments passed to the constructor of your contract when it is being deployed*
@@ -254,7 +266,7 @@ You can deploy the contracts to the lisk-sepolia testnet.
 You can use scripts to interact with the deployed contracts after they are live. The interaction scripts for this repository can be found in the scripts directory To run scripts that interact with the contracts:
 
 ```
-npx hardhat run scripts/interaction.ts --network lisk-sepolia
+npx hardhat run scripts/interaction.ts --network <network>
 ```
 
 ## License
