@@ -9,7 +9,7 @@ contract CaveParty is ERC721, Ownable(msg.sender) {
     // events
     event Minted(uint256 tokenId);
 
-    // statet variables
+    // state variables
     uint256 public totalMints = 0;
     uint256 public mintPrice = 0.0001 ether;
     uint256 public maxPerWallet = 1;
