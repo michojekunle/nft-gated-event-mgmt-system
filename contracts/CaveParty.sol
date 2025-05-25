@@ -14,7 +14,7 @@ contract CaveParty is ERC721, Ownable(msg.sender) {
     uint256 public mintPrice = 0.0001 ether;
     uint256 public maxPerWallet = 1;
     string public assetMetadata =
-        "https://gateway.pinata.cloud/ipfs/Qmcs26b4ph4xqNyweWciq8H6gTkhESd4yZtECVmESMWPBo";
+        "https://gateway.pinata.cloud/ipfs/QmeXnyhrkEGfKzQRtusyWNFKcjyZxLcU1puRvxLkK2kTeS";
 
     // mappings
     mapping(address => uint256) public walletMints;
