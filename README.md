@@ -231,12 +231,12 @@ You can deploy the contracts to a testnet network.
    Deploy the contract using Hardhat:
 
    ```
-   npx hardhat ignition deploy ignition/modules/<name-of-your-module> --network rootstock
+   npx hardhat ignition deploy ignition/modules/nft-gated-event-manager.ts --network rootstock
    ```
 
 3. **Verify the Deployment:**
 
-   Once deployed, note the contract address. You can verify the contract on Etherscan or blockscout if deployed on the network deployed using:
+   Once deployed, note the contract address. You can verify the contract on Etherscan or blockscout if deployed on the network using:
 
    ```
    npx hardhat verify --network rootstock <your-contract-address> <...args>
@@ -244,13 +244,6 @@ You can deploy the contracts to a testnet network.
 
 - *Note: &lt;...args&gt; are the arguments passed to the constructor of your contract when it is being deployed*
 
-## Interacting with the Deployed Contracts
-
-You can use scripts to interact with the deployed contracts after they are live. The interaction scripts for this repository can be found in the scripts directory To run scripts that interact with the contracts:
-
-```
-npx hardhat run scripts/interaction.ts --network <network>
-```
 
 ## License
 
