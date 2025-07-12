@@ -3,7 +3,7 @@ pragma solidity ^0.8.28;
 
 import {IERC721} from "@openzeppelin/contracts/interfaces/IERC721.sol";
 import {IERC165} from "@openzeppelin/contracts/interfaces/IERC165.sol";
-import '@openzeppelin/contracts/utils/ReentrancyGuard.sol';
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract NFTGatedEventManager is ReentrancyGuard {
     struct Event {
@@ -35,7 +35,7 @@ contract NFTGatedEventManager is ReentrancyGuard {
         address nftRequired,
         uint256 maxCapacity
     );
-    event UserRegistered(uint256 eventId, address user);
+    event UserRegistered(uint256 eventId, address indexed user);
     event EventStatusUpdated(uint256 eventId, bool newStatus);
 
     constructor() {
@@ -54,13 +54,10 @@ contract NFTGatedEventManager is ReentrancyGuard {
             "Event date must be in the future."
         );
         require(_maxCapacity > 0, "Max capacity must be greater than zero.");
-
-        // Check if the require nft address is a contract
-        uint32 size;
-        assembly {
-            size := extcodesize(_nftRequired)
-        }
-        require(size > 0, "Required NFT address is not a contract");
+        require(
+            _nftRequired.code.length > 0,
+            "Required NFT address is not a contract"
+        );
 
         // Check if the nft contract supports ERC721 interface
         require(
@@ -110,6 +107,10 @@ contract NFTGatedEventManager is ReentrancyGuard {
         // Register the user
         currentEvent.isRegistered[msg.sender] = true;
         currentEvent.registeredCount++;
+
+        if (block.timestamp > currentEvent.eventDate) {
+            currentEvent.isActive = false;
+        }
 
         emit UserRegistered(_eventId, msg.sender);
     }
