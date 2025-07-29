@@ -40,7 +40,7 @@ contract CaveParty is ERC721, Ownable(msg.sender) {
     }
 
     function mintToken() external payable {
-        require(mintPrice >= msg.value, "0.0001 ether required to mint");
+        require(msg.value >= mintPrice, "0.0001 ether required to mint");
         require(
             walletMints[msg.sender] < maxPerWallet,
             "mints per wallet exceeded"
@@ -48,6 +48,10 @@ contract CaveParty is ERC721, Ownable(msg.sender) {
 
         walletMints[msg.sender] += 1;
         safeMint(msg.sender);
+    }
+
+    function setMintPrice(uint256 _newPrice) external onlyOwner {
+        mintPrice = _newPrice;
     }
 
     function getMyWalletMints() external view returns (uint256) {

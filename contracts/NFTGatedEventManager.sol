@@ -7,18 +7,19 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 contract NFTGatedEventManager is ReentrancyGuard {
     struct Event {
-        string eventName; // Name of the event
-        uint256 eventDate; // Event date (timestamp)
-        address nftRequired; // NFT address required for this event
-        bool isActive; // Event status
-        uint256 maxCapacity; // Maximum number of participants allowed
-        uint256 registeredCount; // Current number of participants
-        mapping(address => bool) isRegistered; // Tracks users who have registered
+        string eventName;
+        uint256 eventDate;
+        address nftRequired;
+        bool isActive;
+        uint256 maxCapacity;
+        uint256 registeredCount;
+        bool supportsERC721;
+        address[] attendees;
     }
 
-    uint256 public eventIdCounter; // Unique ID counter for events
-    mapping(uint256 => Event) public events; // Maps event ID to Event struct
-    address public owner; // Contract owner for event management
+    uint256 public eventIdCounter;
+    mapping(uint256 => Event) public events;
+    address public owner;
 
     modifier onlyOwner() {
         require(
@@ -59,9 +60,11 @@ contract NFTGatedEventManager is ReentrancyGuard {
             "Required NFT address is not a contract"
         );
 
-        // Check if the nft contract supports ERC721 interface
+        bool supportsERC721 = IERC165(_nftRequired).supportsInterface(
+            type(IERC721).interfaceId
+        );
         require(
-            IERC165(_nftRequired).supportsInterface(type(IERC721).interfaceId),
+            supportsERC721,
             "Required NFT Address is not an ERC721 contract"
         );
 
@@ -71,6 +74,7 @@ contract NFTGatedEventManager is ReentrancyGuard {
         newEvent.nftRequired = _nftRequired;
         newEvent.maxCapacity = _maxCapacity;
         newEvent.isActive = true;
+        newEvent.supportsERC721 = supportsERC721;
 
         emit EventCreated(
             eventIdCounter,
@@ -96,7 +100,7 @@ contract NFTGatedEventManager is ReentrancyGuard {
             "Event is fully booked."
         );
         require(
-            !currentEvent.isRegistered[msg.sender],
+            !isUserRegistered(_eventId, msg.sender),
             "You are already registered for this event."
         );
         require(
@@ -104,13 +108,8 @@ contract NFTGatedEventManager is ReentrancyGuard {
             "You do not own the required NFT."
         );
 
-        // Register the user
-        currentEvent.isRegistered[msg.sender] = true;
+        currentEvent.attendees.push(msg.sender);
         currentEvent.registeredCount++;
-
-        if (block.timestamp > currentEvent.eventDate) {
-            currentEvent.isActive = false;
-        }
 
         emit UserRegistered(_eventId, msg.sender);
     }
@@ -121,7 +120,16 @@ contract NFTGatedEventManager is ReentrancyGuard {
     )
         external
         view
-        returns (string memory, uint256, address, uint256, uint256, bool)
+        returns (
+            string memory,
+            uint256,
+            address,
+            uint256,
+            uint256,
+            bool,
+            bool,
+            address[] memory
+        )
     {
         Event storage currentEvent = events[_eventId];
         return (
@@ -130,7 +138,9 @@ contract NFTGatedEventManager is ReentrancyGuard {
             currentEvent.nftRequired,
             currentEvent.maxCapacity,
             currentEvent.registeredCount,
-            currentEvent.isActive
+            currentEvent.isActive,
+            currentEvent.supportsERC721,
+            currentEvent.attendees
         );
     }
 
@@ -145,11 +155,29 @@ contract NFTGatedEventManager is ReentrancyGuard {
         emit EventStatusUpdated(_eventId, _isActive);
     }
 
-    // Check if a user is registered for an event
     function isUserRegistered(
         uint256 _eventId,
         address _user
-    ) external view returns (bool) {
-        return events[_eventId].isRegistered[_user];
+    ) public view returns (bool) {
+        Event storage currentEvent = events[_eventId];
+        for (uint256 i = 0; i < currentEvent.attendees.length; i++) {
+            if (currentEvent.attendees[i] == _user) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    function deactivateExpiredEvents() external {
+        for (uint256 i = 0; i < eventIdCounter; i++) {
+            Event storage currentEvent = events[i];
+            if (
+                currentEvent.isActive &&
+                block.timestamp > currentEvent.eventDate
+            ) {
+                currentEvent.isActive = false;
+                emit EventStatusUpdated(i, false);
+            }
+        }
     }
 }
