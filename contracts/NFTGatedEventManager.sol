@@ -16,7 +16,8 @@ contract NFTGatedEventManager is ReentrancyGuard {
         bool supportsERC721;
         address[] attendees;
     }
-
+    
+    mapping(uint256 => mapping (address => bool)) public isUserRegistered; // Tracks users who have registered
     uint256 public eventIdCounter;
     mapping(uint256 => Event) public events;
     address public owner;
@@ -100,7 +101,7 @@ contract NFTGatedEventManager is ReentrancyGuard {
             "Event is fully booked."
         );
         require(
-            !isUserRegistered(_eventId, msg.sender),
+            !isUserRegistered[_eventId][msg.sender],
             "You are already registered for this event."
         );
         require(
@@ -109,6 +110,7 @@ contract NFTGatedEventManager is ReentrancyGuard {
         );
 
         currentEvent.attendees.push(msg.sender);
+        isUserRegistered[_eventId][msg.sender] = true;
         currentEvent.registeredCount++;
 
         emit UserRegistered(_eventId, msg.sender);
@@ -153,19 +155,6 @@ contract NFTGatedEventManager is ReentrancyGuard {
         currentEvent.isActive = _isActive;
 
         emit EventStatusUpdated(_eventId, _isActive);
-    }
-
-    function isUserRegistered(
-        uint256 _eventId,
-        address _user
-    ) public view returns (bool) {
-        Event storage currentEvent = events[_eventId];
-        for (uint256 i = 0; i < currentEvent.attendees.length; i++) {
-            if (currentEvent.attendees[i] == _user) {
-                return true;
-            }
-        }
-        return false;
     }
 
     function deactivateExpiredEvents() external {
