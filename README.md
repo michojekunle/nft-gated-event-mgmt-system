@@ -206,7 +206,7 @@ You can deploy the contracts to a testnet network.
 - set up your `.env`, in your `.env`
 
   ```
-  WALLET_KEY="your-private-key"
+  WALLET_KEY="your-wallet-key"
   ROOTSTOCK_TESTNET_RPC_URL=your-alchemy-testnet-rpc-url   
   ```
 
